@@ -1,0 +1,23 @@
+{
+  "name": "Stripe Extension",
+  "version": "1.0",
+  "description": "Stripe Extension",
+  "manifest_version": 2,
+  "permissions": [
+    "tabs",
+    "storage",
+    "runtime"
+  ],
+  "browser_action": {
+    "default_popup": "index.html",
+    "default_icon": "assets/Stripe1.png"
+  },
+  "content_scripts":
+  [
+    {
+      "matches": ["*://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
