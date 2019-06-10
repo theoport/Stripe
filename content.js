@@ -28,7 +28,7 @@
       replaceImmigrantWithExpatToggle(newConfig.replaceImmigrantWithExpat);
     }
     if (newConfig.replaceExpatWithImmigrant !== localConfig.replaceExpatWithImmigrant) {
-      replaceExpatWithImmigrantToggle(newConfig.replaceImmigrantWithExpat);
+      replaceExpatWithImmigrantToggle(newConfig.replaceExpatWithImmigrant);
     }
     if (newConfig.markBackground !== localConfig.markBackground) {
       markBackgroundToggle(newConfig.markBackground);
