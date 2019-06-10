@@ -9,7 +9,7 @@
       "64": "assets/Stripe3-64.png",
       "128": "assets/Stripe3-128.png"
     }
-  }
+  };
   const enableIconPath = {
     path: {
       "16": "assets/Stripe2-16.png",
@@ -20,7 +20,7 @@
       "64": "assets/Stripe2-64.png",
       "128": "assets/Stripe2-128.png"
     }
-  }
+  };
 
   window.onload = () => {
     const expatToImmigrantSwitch = document.getElementById("expatToImmigrant");
@@ -32,12 +32,12 @@
     markBackgroundSwitch.addEventListener("click", markBackgroundHandler);
     enableSwitch.addEventListener("click", enableHandler);
 
-    chrome.storage.sync.get(['stripeConfig'], ({ stripeConfig }) => {
-      stripeConfig || (stripeConfig = {})
-      stripeConfig.replaceExpatWithImmigrant && expatToImmigrantSwitch.setAttribute('checked', 'true');
-      stripeConfig.replaceImmigrantWithExpat && immigrantToExpatSwitch.setAttribute('checked', 'true');
-      stripeConfig.markBackground && markBackgroundSwitch.setAttribute('checked', 'true');
-      stripeConfig.enable && enableSwitch.setAttribute('checked', 'true');
+    chrome.storage.sync.get(['globalConfig'], ({ globalConfig }) => {
+      globalConfig || (globalConfig = {})
+      globalConfig.replaceExpatWithImmigrant && expatToImmigrantSwitch.setAttribute('checked', 'true');
+      globalConfig.replaceImmigrantWithExpat && immigrantToExpatSwitch.setAttribute('checked', 'true');
+      globalConfig.markBackground && markBackgroundSwitch.setAttribute('checked', 'true');
+      globalConfig.enable && enableSwitch.setAttribute('checked', 'true');
     });
   }
 
@@ -59,8 +59,8 @@
   }
 
   function setConfigAndSendMessage(newProperty) {
-    chrome.storage.sync.get(['stripeConfig'], ({ stripeConfig }) => {
-      chrome.storage.sync.set({'stripeConfig': {...stripeConfig, ...newProperty}}, () => {
+    chrome.storage.sync.get(['globalConfig'], ({ globalConfig }) => {
+      chrome.storage.sync.set({'globalConfig': {...globalConfig, ...newProperty}}, () => {
         chrome.runtime.sendMessage({'messageType': 'update'});
       });
     });

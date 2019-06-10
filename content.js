@@ -7,36 +7,37 @@
   const EXPATRIATE = 'expatriate';
   const IMMIGRANT_ID = 'replacedByImmigrantdhj4GH';
   const EXPAT_ID = 'replacedByExpat34GHKKK';
-  const OLD_VALUE_ATTR = 'oldValueStripe1Ghy77D';
+  const OLD_VALUE_ATTR = 'oldValue1Ghy77D';
+  const GLOBAL_CONFIG = 'globalConfig';
   const DEFAULT_EXCLUDE_ELEMENTS = Object.freeze(['script', 'style', 'iframe', 'canvas']);
 
-  let stripeConfig;
+  let localConfig;
 
-  chrome.storage.sync.get(['stripeConfig'], (result) => {
-    stripeConfig = result.stripeConfig || {};
-    stripeConfig.enable && init();
+  chrome.storage.sync.get([GLOBAL_CONFIG], ({ globalConfig }) => {
+    localConfig = globalConfig || {};
+    localConfig.enable && init();
   });
 
   function init() {
-    (stripeConfig.replaceExpatWithImmigrant === true) && replaceExpatWithImmigrant(stripeConfig.markBackground);
-    (stripeConfig.replaceImmigrantWithExpat === true) && replaceImmigrantWithExpat(stripeConfig.markBackground);
+    (localConfig.replaceExpatWithImmigrant === true) && replaceExpatWithImmigrant(localConfig.markBackground);
+    (localConfig.replaceImmigrantWithExpat === true) && replaceImmigrantWithExpat(localConfig.markBackground);
   }
 
   function updateIfChanged(newConfig) {
-    if (newConfig.replaceImmigrantWithExpat !== stripeConfig.replaceImmigrantWithExpat) {
+    if (newConfig.replaceImmigrantWithExpat !== localConfig.replaceImmigrantWithExpat) {
       replaceImmigrantWithExpatToggle(newConfig.replaceImmigrantWithExpat);
     }
-    if (newConfig.replaceExpatWithImmigrant !== stripeConfig.replaceExpatWithImmigrant) {
+    if (newConfig.replaceExpatWithImmigrant !== localConfig.replaceExpatWithImmigrant) {
       replaceExpatWithImmigrantToggle(newConfig.replaceImmigrantWithExpat);
     }
-    if (newConfig.markBackground !== stripeConfig.markBackground) {
+    if (newConfig.markBackground !== localConfig.markBackground) {
       markBackgroundToggle(newConfig.markBackground);
     }
   }
 
   function replaceExpatWithImmigrantToggle(checked) {
     if (checked === true) {
-      replaceExpatWithImmigrant(stripeConfig.markBackground)
+      replaceExpatWithImmigrant(localConfig.markBackground)
     } else {
       revertExpatToImmigrant();
     }
@@ -44,7 +45,7 @@
 
   function replaceImmigrantWithExpatToggle(checked) {
     if (checked === true) {
-      replaceImmigrantWithExpat(stripeConfig.markBackground);
+      replaceImmigrantWithExpat(localConfig.markBackground);
     } else {
       revertImmigrantToExpat();
     }
@@ -52,9 +53,9 @@
 
   function markBackgroundToggle(checked) {
     if (checked === true) {
-      findStripeNodesRecursive(document.body, addBackground);
+      findAddedNodesRecursive(document.body, addBackground);
     } else {
-      findStripeNodesRecursive(document.body, removeBackground);
+      findAddedNodesRecursive(document.body, removeBackground);
     }
   }
 
@@ -67,61 +68,59 @@
   }
 
   function revertExpatToImmigrant() {
-    return findStripeNodesRecursive(document.body, revertReplacement(IMMIGRANT_ID))
+    return findAddedNodesRecursive(document.body, revertReplacement(IMMIGRANT_ID))
   }
 
   function revertImmigrantToExpat() {
-    return findStripeNodesRecursive(document.body, revertReplacement(EXPAT_ID))
+    return findAddedNodesRecursive(document.body, revertReplacement(EXPAT_ID))
   }
 
   function findAndReplaceRecursive(node, regex, replaceWithWrapped, excludeElements = DEFAULT_EXCLUDE_ELEMENTS) {
     let child = node.firstChild || {};
-    do {
-      switch (child.nodeType) {
-        case (Node.ELEMENT_NODE):
-          if (excludeElements.includes(child.tagName.toLowerCase()) || child.hasAttribute(OLD_VALUE_ATTR)) {
-            continue;
-          }
-          findAndReplaceRecursive(child, regex, replaceWithWrapped, excludeElements)
-          break;
-        case (Node.TEXT_NODE):
-          child.nodeValue.replace(regex, replaceWithWrapped.bind(child));
-          break;
-      }
+    do switch (child.nodeType) {
+      case (Node.ELEMENT_NODE):
+        if (excludeElements.includes(child.tagName.toLowerCase()) || child.hasAttribute(OLD_VALUE_ATTR)) {
+          continue;
+        }
+        findAndReplaceRecursive(child, regex, replaceWithWrapped, excludeElements);
+        break;
+      case (Node.TEXT_NODE):
+        child.nodeValue.replace(regex, replaceWithWrapped.bind(child));
+        break;
     } while (child = child.nextSibling)
   }
 
-  function formatNewWord(matchedWord, newWord) {
-    newWord = newWord.toLowerCase();
-    if (matchedWord === matchedWord.toUpperCase()) {
-      return newWord.toUpperCase();
+  function formatNewString(match, newString) {
+    newString = newString.toLowerCase();
+    if (match === match.toUpperCase()) {
+      return newString.toUpperCase();
     } else {
-      return matchedWord[0] === matchedWord[0].toUpperCase() ?
-        newWord[0].toUpperCase() + newWord.substring(1)
-        : newWord;
+      return match[0] === match[0].toUpperCase() ?
+        newString[0].toUpperCase() + newString.substring(1)
+        : newString;
     }
   }
 
-  function generateReplacorFunction(newWord, markBackground, wrapperClassName) {
-    function wrapReplacementWord(matchedWord, oldBackgroundColor) {
+  function generateReplacorFunction(newString, markBackground, tagClassName) {
+    function wrapNewStringInSpanTag(match, oldBackgroundColor) {
       const span = document.createElement("span");
-      span.className = wrapperClassName;
-      span.textContent = formatNewWord(matchedWord, newWord);
-      span.setAttribute(OLD_VALUE_ATTR, matchedWord);
+      span.className = tagClassName;
+      span.textContent = formatNewString(match, newString);
+      span.setAttribute(OLD_VALUE_ATTR, match);
       markBackground && changeBackgroundColor(oldBackgroundColor, span);
       return span;
     }
 
-    return function(matchedWord, offset) {
+    return function(match, offset) {
       const newChild = this.splitText(offset);
-      newChild.nodeValue = newChild.nodeValue.substring(matchedWord.length);
-      this.parentNode.insertBefore(wrapReplacementWord(matchedWord, getBackgroundColor(this.parentNode)), newChild);
+      newChild.nodeValue = newChild.nodeValue.substring(match.length);
+      this.parentNode.insertBefore(wrapNewStringInSpanTag(match, getBackgroundColor(this.parentNode)), newChild);
     }
   }
 
   function getBackgroundColor(node) {
     while ((node = node.parentNode) && node.style !== undefined) {
-      const bckg = window.getComputedStyle(node).getPropertyValue('background-color')
+      const bckg = window.getComputedStyle(node).getPropertyValue('background-color');
       if (bckg !== "rgba(0, 0, 0, 0)") {
         return bckg;
       }
@@ -141,47 +140,47 @@
   function isWhite(color) {
     if (color.match(/^rgb/)) {
       const rgb = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      return (rgb[1] == 255 && rgb[2] == 255 && rgb[3] == 255);
+      return (rgb[1] === '255' && rgb[2] === '255' && rgb[3] === '255');
     } else if (color.match(/^#/)) {
       color = color.replace(color.length < 5 && /./g, '$&$&');
-      return (color == '#FFFFFF');
+      return (color === '#FFFFFF');
     } else {
       return true;
     }
   }
 
-  function findStripeNodesRecursive(node, transformNode, excludeElements = DEFAULT_EXCLUDE_ELEMENTS) {
+  function findAddedNodesRecursive(node, transformNode, excludeElements = DEFAULT_EXCLUDE_ELEMENTS) {
     let child = node.firstChild || {};
     do {
       if (child.nodeType === Node.ELEMENT_NODE && !excludeElements.includes(child.tagName.toLowerCase())) {
         if (child.hasAttribute(OLD_VALUE_ATTR)) {
           child = transformNode(child);
         } else {
-          findStripeNodesRecursive(child, transformNode, excludeElements);
+          findAddedNodesRecursive(child, transformNode, excludeElements);
         }
       }
     } while (child = child.nextSibling)
   }
 
-  function removeBackground(stripeNode) {
-    stripeNode.style.backgroundColor = null;
-    stripeNode.style.color = null;
-    return stripeNode;
+  function removeBackground(node) {
+    node.style.backgroundColor = null;
+    node.style.color = null;
+    return node;
   }
 
-  function addBackground(stripeNode) {
-    changeBackgroundColor(getBackgroundColor(stripeNode), stripeNode);
-    return stripeNode;
+  function addBackground(node) {
+    changeBackgroundColor(getBackgroundColor(node), node);
+    return node;
   }
 
   function revertReplacement(className) {
-    return function (stripeNode) {
-      if (!stripeNode.classList.contains(className)) {
-        return stripeNode;
+    return function (node) {
+      if (!node.classList.contains(className)) {
+        return node;
       }
-      const parent = stripeNode.parentNode;
-      const newNode = document.createTextNode(stripeNode.getAttribute(OLD_VALUE_ATTR));
-      parent.replaceChild(newNode, stripeNode);
+      const parent = node.parentNode;
+      const newNode = document.createTextNode(node.getAttribute(OLD_VALUE_ATTR));
+      parent.replaceChild(newNode, node);
       parent.normalize();
       return parent.firstChild;
     }
@@ -196,8 +195,7 @@
     }
   }
 
-  chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.messageType === 'update') {
         updateHandler();
       }
@@ -206,13 +204,13 @@
     });
 
   function updateHandler(){
-    chrome.storage.sync.get(['stripeConfig'], ({ stripeConfig: newConfig }) => {
-      if (newConfig.enable !== stripeConfig.enable) {
+    chrome.storage.sync.get([GLOBAL_CONFIG], ({ globalConfig: newConfig }) => {
+      if (newConfig.enable !== localConfig.enable) {
         enableOrDisable(newConfig);
       } else if (newConfig.enable === true) {
         updateIfChanged(newConfig);
       }
-      stripeConfig = newConfig;
+      localConfig = newConfig;
     });
   }
 
