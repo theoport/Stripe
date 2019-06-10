@@ -2,26 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stripe</title>
-    <link rel="stylesheet" href="stripe.css">
-    <script src="stripe.js"></script>
+    <title>whereareyoufrom?</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="index.js"></script>
 </head>
 <body>
-    <h1>Your settings</h1>
-    <p>Immigrant -> Expat
-        <label class="switch">
-            <input type="checkbox" id="immigrantToExpat">
-            <span class="slider round"></span>
-        </label></p>
-    <p>Expat -> Immigrant
-        <label class="switch">
-            <input type="checkbox" id="expatToImmigrant">
-            <span class="slider round"></span>
-        </label></p>
-    <p>Mark background?
-        <label class="switch">
-            <input type="checkbox" id="markBackground">
-            <span class="slider round"></span>
-        </label></p>
+  <h3 style="text-align: center"><code>whereareyoufrom?</code></h3>
+  <div style="text-align: center">
+            <label class="switch">
+                <input type="checkbox" id="enable">
+                <span class="slider round"></span>
+            </label></div>
+    <details>
+    <hr>
+    <summary style="outline: none; cursor:pointer"><b>settings</b></summary>
+    <table style="width:100%">
+      <tbody>
+        <tr>
+          <td>
+            <label class="switch">
+                <input type="checkbox" id="immigrantToExpat">
+                <span class="slider round"></span>
+            </label>
+          </td>
+          <td style="background-color: #f0f0f0">
+            <b>Replace "Immigrant"/"Migrant" with "Expat"</b>
+          </td>
+        </tr>
+        <tr> 
+          <td>
+            <label class="switch">
+                <input type="checkbox" id="expatToImmigrant">
+                <span class="slider round"></span>
+            </label>
+          </td>
+          <td style="background-color: #e0e0e0">
+            <b>Replace "Expat(riate)" with "Immigrant"</b>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="switch">
+                <input type="checkbox" id="markBackground">
+                <span class="slider round"></span>
+            </label>
+          </td>
+          <td style="background-color: #f0f0f0">
+            <b>Mark background of replaced words</b>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </details>
 </body>
 </html>
