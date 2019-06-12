@@ -36,35 +36,31 @@
   }
 
   function replaceExpatWithImmigrantToggle(checked) {
-    if (checked === true) {
-      replaceExpatWithImmigrant(localConfig.markBackground)
-    } else {
-      revertExpatToImmigrant();
-    }
+    checked ? 
+      replaceExpatWithImmigrant(localConfig.markBackground) 
+      : revertExpatToImmigrant();
   }
 
   function replaceImmigrantWithExpatToggle(checked) {
-    if (checked === true) {
-      replaceImmigrantWithExpat(localConfig.markBackground);
-    } else {
-      revertImmigrantToExpat();
-    }
+    checked ? 
+      replaceImmigrantWithExpat(localConfig.markBackground) 
+      : revertImmigrantToExpat();
   }
 
   function markBackgroundToggle(checked) {
-    if (checked === true) {
-      findAddedNodesRecursive(document.body, addBackground);
-    } else {
-      findAddedNodesRecursive(document.body, removeBackground);
-    }
+    checked ? 
+      findAddedNodesRecursive(document.body, addBackground) 
+      : findAddedNodesRecursive(document.body, removeBackground);
   }
 
   function replaceExpatWithImmigrant(markBackground = false) {
-    findAndReplaceRecursive(document.body, new RegExp(`${EXPATRIATE}|${EXPAT}`, 'i'), generateReplacorFunction(IMMIGRANT, markBackground, IMMIGRANT_ID))
+    findAndReplaceRecursive(document.body, new RegExp(`${EXPATRIATE}|${EXPAT}`, 'i'), 
+      generateReplacorFunction(IMMIGRANT, markBackground, IMMIGRANT_ID))
   }
 
   function replaceImmigrantWithExpat(markBackground = false) {
-    findAndReplaceRecursive(document.body, new RegExp(`${IMMIGRANT}|${MIGRANT}`, 'i'), generateReplacorFunction(EXPAT, markBackground, EXPAT_ID))
+    findAndReplaceRecursive(document.body, new RegExp(`${IMMIGRANT}|${MIGRANT}`, 'i'), 
+      generateReplacorFunction(EXPAT, markBackground, EXPAT_ID))
   }
 
   function revertExpatToImmigrant() {
