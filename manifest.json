@@ -1,7 +1,7 @@
 {
-  "name": "Stripe Extension",
-  "version": "1.0",
-  "description": "Stripe Extension",
+  "name": "wayf extension",
+  "version": "0.0.1",
+  "description": "wayf extension",
   "manifest_version": 2,
   "permissions": [
     "storage"

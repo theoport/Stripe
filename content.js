@@ -36,31 +36,28 @@
   }
 
   function replaceExpatWithImmigrantToggle(checked) {
-    checked ? 
-      replaceExpatWithImmigrant(localConfig.markBackground) 
+    checked ? replaceExpatWithImmigrant(localConfig.markBackground) 
       : revertExpatToImmigrant();
   }
 
   function replaceImmigrantWithExpatToggle(checked) {
-    checked ? 
-      replaceImmigrantWithExpat(localConfig.markBackground) 
+    checked ? replaceImmigrantWithExpat(localConfig.markBackground) 
       : revertImmigrantToExpat();
   }
 
   function markBackgroundToggle(checked) {
-    checked ? 
-      findAddedNodesRecursive(document.body, addBackground) 
+    checked ? findAddedNodesRecursive(document.body, addBackground) 
       : findAddedNodesRecursive(document.body, removeBackground);
   }
 
   function replaceExpatWithImmigrant(markBackground = false) {
     findAndReplaceRecursive(document.body, new RegExp(`${EXPATRIATE}|${EXPAT}`, 'i'), 
-      generateReplacorFunction(IMMIGRANT, markBackground, IMMIGRANT_ID))
+      generateReplacementFunction(IMMIGRANT, markBackground, IMMIGRANT_ID))
   }
 
   function replaceImmigrantWithExpat(markBackground = false) {
     findAndReplaceRecursive(document.body, new RegExp(`${IMMIGRANT}|${MIGRANT}`, 'i'), 
-      generateReplacorFunction(EXPAT, markBackground, EXPAT_ID))
+      generateReplacementFunction(EXPAT, markBackground, EXPAT_ID))
   }
 
   function revertExpatToImmigrant() {
@@ -97,7 +94,7 @@
     }
   }
 
-  function generateReplacorFunction(newString, markBackground, tagClassName) {
+  function generateReplacementFunction(newString, markBackground, tagClassName) {
     function wrapNewStringInSpanTag(match, oldBackgroundColor) {
       const span = document.createElement("span");
       span.className = tagClassName;
@@ -126,10 +123,14 @@
 
   function changeBackgroundColor(oldColor, element) {
     if (isWhite(oldColor)) {
-      element.style.backgroundColor = "cornsilk";
+      Object.assign(element.style, {
+        backgroundColor: "cornsilk"
+      })
     } else {
-      element.style.backgroundColor = "white";
-      element.style.color = "black"
+      Object.assign(element.style, {
+        backgroundColor: "white",
+        color: "black"
+      })
     }
   }
 
@@ -159,9 +160,10 @@
   }
 
   function removeBackground(node) {
-    node.style.backgroundColor = null;
-    node.style.color = null;
-    return node;
+    return Object.assign(node.style, {
+      backgroundColor: null,
+      color: null
+    })
   }
 
   function addBackground(node) {
@@ -191,14 +193,6 @@
     }
   }
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.messageType === 'update') {
-        updateHandler();
-      }
-      sendResponse();
-      return true;
-    });
-
   function updateHandler(){
     chrome.storage.sync.get([GLOBAL_CONFIG], ({ globalConfig: newConfig }) => {
       if (newConfig.enable !== localConfig.enable) {
@@ -210,4 +204,11 @@
     });
   }
 
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.messageType === 'update') {
+        updateHandler();
+      }
+      sendResponse();
+      return true;
+    });
 })();
