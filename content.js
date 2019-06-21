@@ -191,6 +191,14 @@
     }
   }
 
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.messageType === 'update') {
+        updateHandler();
+      }
+      sendResponse();
+      return true;
+    });
+
   function updateHandler(){
     chrome.storage.sync.get([GLOBAL_CONFIG], ({ globalConfig: newConfig }) => {
       if (newConfig.enable !== localConfig.enable) {
@@ -202,11 +210,4 @@
     });
   }
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.messageType === 'update') {
-        updateHandler();
-      }
-      sendResponse();
-      return true;
-    });
 })();
