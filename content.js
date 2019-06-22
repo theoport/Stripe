@@ -19,8 +19,8 @@
   });
 
   function init() {
-    (localConfig.replaceExpatWithImmigrant === true) && replaceExpatWithImmigrant(localConfig.markBackground);
-    (localConfig.replaceImmigrantWithExpat === true) && replaceImmigrantWithExpat(localConfig.markBackground);
+    localConfig.replaceExpatWithImmigrant && replaceExpatWithImmigrant(localConfig.markBackground);
+    localConfig.replaceImmigrantWithExpat && replaceImmigrantWithExpat(localConfig.markBackground);
   }
 
   function updateIfChanged(newConfig) {
@@ -185,11 +185,11 @@
   }
 
   function enableOrDisable(config) {
-    if (config.enable === true) {
+    if (config.enable) {
       init();
     } else {
-      (config.replaceExpatWithImmigrant === true) && revertExpatToImmigrant();
-      (config.replaceImmigrantWithExpat === true) && revertImmigrantToExpat();
+      config.replaceExpatWithImmigrant && revertExpatToImmigrant();
+      config.replaceImmigrantWithExpat && revertImmigrantToExpat();
     }
   }
 
@@ -197,7 +197,7 @@
     chrome.storage.sync.get([GLOBAL_CONFIG], ({ globalConfig: newConfig }) => {
       if (newConfig.enable !== localConfig.enable) {
         enableOrDisable(newConfig);
-      } else if (newConfig.enable === true) {
+      } else if (newConfig.enable) {
         updateIfChanged(newConfig);
       }
       localConfig = newConfig;
