@@ -1,7 +1,7 @@
 {
   "name": "wayf extension",
   "short_name": "wayf",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "wayf extension",
   "manifest_version": 2,
   "permissions": [
